@@ -1,6 +1,6 @@
 import asyncio
 import random
-from  uuid import uuid4
+from uuid import uuid4
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -30,17 +30,21 @@ async def start(message: types.Message, state: FSMContext):
 @dp.message(F.text.lower() == 'создать пари', StateFilter(UserStates.BASE))
 async def add_paris(message: types.Message):
     pari_name = str(uuid4())
-    ps.add_pari(message.from_user.id, pari_name)
+    ps.add_pari(message.from_user.username, pari_name)
     await message.answer(f'Пари {pari_name} было успешно создано')
 
 
-@dp.message(F.text.lover() == 'мои пари', StateFilter(UserStates.BASE))
+@dp.message(F.text.lower() == 'мои пари', StateFilter(UserStates.BASE))
 async def get_paris(message: types.Message):
-    paris = ps.get_pari(message.from_user.id)
+    paris = ps.get_pari(message.from_user.username)
     text = ""
     for pari in paris:
-        text += '\n' + pari
-    await message.answer(f'Твои пари: {text}')
+        text += '\n' + str(pari)
+    if text != '':
+        await message.answer('Твои пари: ' + text)
+    else:
+        await message.answer('У тебя нет пари')
+
 
 async def main():
     await bot.delete_webhook(drop_pending_updates=True)
